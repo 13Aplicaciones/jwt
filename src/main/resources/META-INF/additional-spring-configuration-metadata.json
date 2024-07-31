@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "aplicaciones13.jwt.secret",
+    "type": "java.lang.String",
+    "description": "Llave secreta para la creacion del token"
+  },
+  {
+    "name": "aplicaciones13.jwt.expiration",
+    "type": "java.lang.String",
+    "description": "Tiempo en milisegundos para la expiracion del token"
+  },
+  {
+    "name": "aplicaciones13.jwt.refresh_expiration",
+    "type": "java.lang.String",
+    "description": "Tiempo en milisegundos para el refresh del token"
+  }
+]}
