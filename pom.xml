@@ -15,7 +15,6 @@
 	<name>spring-boot-security-jwt</name>
 	<description>Spring Boot, Spring Security: JWT Authentication Authorization con token refresh </description>
 	<properties>
-		<springdoc.version>1.7.0</springdoc.version>
 		<java.version>11</java.version>
 	</properties>
 	<dependencies>		
@@ -63,7 +62,7 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
-			<version>${springdoc.version}</version>
+			<version>1.7.0</version>
 		</dependency>
 
 		<!-- test -->
