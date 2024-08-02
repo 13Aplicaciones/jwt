@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.aplicaciones13.jwt.security.services.UserDetailsServiceImpl;
+import com.aplicaciones13.jwt.services.UserDetailsServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
 

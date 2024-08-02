@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aplicaciones13.jwt.exception.TokenRefreshException;
-import com.aplicaciones13.jwt.models.ERole;
+import com.aplicaciones13.jwt.models.EnumRole;
 import com.aplicaciones13.jwt.models.RefreshToken;
 import com.aplicaciones13.jwt.models.Role;
 import com.aplicaciones13.jwt.models.User;
@@ -34,8 +35,8 @@ import com.aplicaciones13.jwt.payload.response.TokenRefreshResponse;
 import com.aplicaciones13.jwt.repository.RoleRepository;
 import com.aplicaciones13.jwt.repository.UserRepository;
 import com.aplicaciones13.jwt.security.jwt.JwtUtils;
-import com.aplicaciones13.jwt.security.services.RefreshTokenService;
-import com.aplicaciones13.jwt.security.services.UserDetailsImpl;
+import com.aplicaciones13.jwt.services.RefreshTokenService;
+import com.aplicaciones13.jwt.services.UserDetailsImpl;
 
 /**
  * Clase que controla la autenticación de los usuarios
@@ -45,7 +46,7 @@ import com.aplicaciones13.jwt.security.services.UserDetailsImpl;
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthController {
   
   @Autowired
@@ -72,7 +73,7 @@ public class AuthController {
    * @param loginRequest
    * @return
    */
-  @PostMapping("/signin")
+  @PostMapping("/signIn")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
     Authentication authentication = authenticationManager
@@ -99,13 +100,17 @@ public class AuthController {
    * @param signUpRequest
    * @return
    */
-  @PostMapping("/signup")
+  @PostMapping("/signUp")
+  @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-    if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+    Boolean existsByUsername = userRepository.existsByUsername(signUpRequest.getUsername());
+    Boolean existsByEmail = userRepository.existsByEmail(signUpRequest.getEmail());
+    
+    if (Boolean.TRUE.equals(existsByUsername)) {
       return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
     }
 
-    if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+    if (Boolean.TRUE.equals(existsByEmail)) {
       return ResponseEntity.badRequest().body(new MessageResponse("Error: Email is already in use!"));
     }
 
@@ -117,26 +122,26 @@ public class AuthController {
     Set<Role> roles = new HashSet<>();
 
     if (strRoles == null) {
-      Role userRole = roleRepository.findByName(ERole.ROLE_USER)
-          .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+      Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
+          .orElseThrow(() -> new RuntimeException("Error: User Role is not found."));
       roles.add(userRole);
     } else {
       strRoles.forEach(role -> {
         switch (role) {
         case "admin":
-          Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+          Role adminRole = roleRepository.findByName(EnumRole.ROLE_ADMIN)
+              .orElseThrow(() -> new RuntimeException("Error: Admin Role is not found."));
           roles.add(adminRole);
 
           break;
         case "mod":
-          Role modRole = roleRepository.findByName(ERole.ROLE_MODERATOR)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+          Role modRole = roleRepository.findByName(EnumRole.ROLE_MODERATOR)
+              .orElseThrow(() -> new RuntimeException("Error: Moderator Role is not found."));
           roles.add(modRole);
 
           break;
         default:
-          Role userRole = roleRepository.findByName(ERole.ROLE_USER)
+          Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
               .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
           roles.add(userRole);
         }
@@ -155,7 +160,8 @@ public class AuthController {
    * @param request
    * @return
    */
-  @PostMapping("/refreshtoken")
+  @PostMapping("/refreshToken")
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> refreshtoken(@Valid @RequestBody TokenRefreshRequest request) {
     String requestRefreshToken = request.getRefreshToken();
 
@@ -175,7 +181,8 @@ public class AuthController {
    * 
    * @return
    */
-  @PostMapping("/signout")
+  @PostMapping("/signOut")
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<?> logoutUser() {
     UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Long userId = userDetails.getId();

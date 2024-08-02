@@ -1,4 +1,4 @@
-package com.aplicaciones13.jwt.advice;
+package com.aplicaciones13.jwt.payload.exception;
 
 import java.util.Date;
 

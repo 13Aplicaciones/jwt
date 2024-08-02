@@ -1,4 +1,4 @@
-package com.aplicaciones13.jwt.security.services;
+package com.aplicaciones13.jwt.services;
 
 import java.util.Collection;
 import java.util.List;
@@ -120,5 +120,10 @@ public class UserDetailsImpl implements UserDetails {
 			return false;
 		UserDetailsImpl user = (UserDetailsImpl) o;
 		return Objects.equals(id, user.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
 	}
 }

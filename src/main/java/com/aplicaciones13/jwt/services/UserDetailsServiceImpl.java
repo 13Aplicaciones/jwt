@@ -1,4 +1,4 @@
-package com.aplicaciones13.jwt.security.services;
+package com.aplicaciones13.jwt.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

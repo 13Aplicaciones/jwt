@@ -6,7 +6,7 @@ package com.aplicaciones13.jwt.models;
  * @Modifier omargo33
  * @since 2024-07-29
  */
-public enum ERole {
+public enum EnumRole {
   ROLE_USER,
   ROLE_MODERATOR,
   ROLE_AUDID,
