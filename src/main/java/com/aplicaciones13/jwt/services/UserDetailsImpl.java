@@ -1,5 +1,6 @@
 package com.aplicaciones13.jwt.services;
 
+import java.util.Date;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -12,12 +13,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.aplicaciones13.jwt.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * Clase UserDetailsImpl
+ * 
+ * Clase personalizada que implementa la interfaz UserDetails de Spring Security
+ * para la autenticación de los usuarios
  * 
  * @Modifier omargo33
  * @since 2024-07-29
  */
+@Slf4j
 public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
@@ -29,6 +36,11 @@ public class UserDetailsImpl implements UserDetails {
 
 	@JsonIgnore
 	private String password;
+
+	private boolean accountNonExpired;
+	private boolean accountNonLocked;
+	private boolean credentialsNonExpired;
+	private boolean enabled;
 
 	private Collection<? extends GrantedAuthority> authorities;
 
@@ -42,11 +54,19 @@ public class UserDetailsImpl implements UserDetails {
 	 * @param authorities
 	 */
 	public UserDetailsImpl(Long id, String username, String email, String password,
+			boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled,
 			Collection<? extends GrantedAuthority> authorities) {
+
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
+
+		this.accountNonExpired = accountNonExpired;
+		this.accountNonLocked = accountNonLocked;
+		this.credentialsNonExpired = credentialsNonExpired;
+
+		this.enabled = enabled;
 		this.authorities = authorities;
 	}
 
@@ -62,10 +82,14 @@ public class UserDetailsImpl implements UserDetails {
 				.collect(Collectors.toList());
 
 		return new UserDetailsImpl(
-				user.getId(), 
-				user.getUsername(), 
+				user.getId(),
+				user.getUsername(),
 				user.getEmail(),
-				user.getPassword(), 
+				user.getPassword(),
+				user.getDateExpirationPassword().after(new Date()),
+				user.getIntentFailed() < 3,
+				user.getDateExpirationCredential().after(new Date()),
+				user.getStatus().equals("A"),
 				authorities);
 	}
 
@@ -94,22 +118,22 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public boolean isAccountNonExpired() {
-		return true;
+		return accountNonExpired;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		return true;
+		return accountNonLocked;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		return true;
+		return credentialsNonExpired;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return enabled;
 	}
 
 	@Override

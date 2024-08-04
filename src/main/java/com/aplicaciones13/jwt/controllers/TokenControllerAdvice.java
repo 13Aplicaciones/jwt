@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
 import com.aplicaciones13.jwt.exception.TokenRefreshException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import com.aplicaciones13.jwt.payload.exception.ErrorMessage;
 
 /**
@@ -21,7 +22,7 @@ import com.aplicaciones13.jwt.payload.exception.ErrorMessage;
 public class TokenControllerAdvice {
 
   /**
-   * Metodo que maneja la excepcion de token
+   * Metodo que maneja la excepcion de token y poner el mensaje de error de payload.
    * 
    * @param ex
    * @param request
@@ -32,6 +33,23 @@ public class TokenControllerAdvice {
   public ErrorMessage handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
     return new ErrorMessage(
         HttpStatus.FORBIDDEN.value(),
+        new Date(),
+        ex.getMessage(),
+        request.getDescription(false));
+  }
+
+  /**
+   * Metodo que maneja la excepcion de argumentos no validos
+   * 
+   * @param ex
+   * @param request
+   * @return ErrorMessage
+   */
+  @ExceptionHandler(value = MethodArgumentNotValidException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ErrorMessage handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
+    return new ErrorMessage(
+        HttpStatus.BAD_REQUEST.value(),
         new Date(),
         ex.getMessage(),
         request.getDescription(false));

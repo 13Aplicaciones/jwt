@@ -7,8 +7,9 @@ package com.aplicaciones13.jwt.models;
  * @since 2024-07-29
  */
 public enum EnumRole {
-  ROLE_USER,
-  ROLE_MODERATOR,
+  ROLE_ADMIN,
   ROLE_AUDID,
-  ROLE_ADMIN
+  ROLE_MODERATOR,
+  ROLE_SERVER,
+  ROLE_USER
 }
