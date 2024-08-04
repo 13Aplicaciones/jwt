@@ -5,7 +5,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.aplicaciones13.jwt.services.UserDetailsImpl;
+import com.aplicaciones13.jwt.services.impl.UserImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -38,7 +38,7 @@ public class JwtUtils {
    * @param userPrincipal
    * @return
    */
-  public String generateJwtToken(UserDetailsImpl userPrincipal) {
+  public String generateJwtToken(UserImpl userPrincipal) {
     return generateTokenFromUsername(userPrincipal.getUsername());
   }
 

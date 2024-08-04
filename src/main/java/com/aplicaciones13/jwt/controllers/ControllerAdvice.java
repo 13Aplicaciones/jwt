@@ -19,10 +19,10 @@ import com.aplicaciones13.jwt.payload.exception.ErrorMessage;
  * @since 2024-07-29
  */
 @RestControllerAdvice
-public class TokenControllerAdvice {
+public class ControllerAdvice {
 
   /**
-   * Metodo que maneja la excepcion de token y poner el mensaje de error de payload.
+   * Metodo que maneja la excepciones de los controladores poner el mensaje de error de payload.
    * 
    * @param ex
    * @param request

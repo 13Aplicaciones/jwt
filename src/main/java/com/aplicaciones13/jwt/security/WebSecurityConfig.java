@@ -16,14 +16,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.aplicaciones13.jwt.security.jwt.AuthEntryPointJwt;
 import com.aplicaciones13.jwt.security.jwt.AuthTokenFilter;
-import com.aplicaciones13.jwt.services.UserDetailsServiceImpl;
+import com.aplicaciones13.jwt.services.UserService;
 
 @Configuration
 @EnableGlobalMethodSecurity(
 		prePostEnabled = true)
 public class WebSecurityConfig { 
 	@Autowired
-	UserDetailsServiceImpl userDetailsService;
+	UserService userDetailsService;
 
 	@Autowired
 	private AuthEntryPointJwt unauthorizedHandler;
@@ -59,6 +59,7 @@ public class WebSecurityConfig {
         .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
         .authorizeRequests().antMatchers("/auth/**", "/actuator/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
+        .antMatchers("/user/**").authenticated()
         .anyRequest().authenticated();
     
     http.authenticationProvider(authenticationProvider());

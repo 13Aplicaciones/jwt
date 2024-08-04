@@ -1,4 +1,4 @@
-package com.aplicaciones13.jwt.services;
+package com.aplicaciones13.jwt.services.impl;
 
 import java.util.Date;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2024-07-29
  */
 @Slf4j
-public class UserDetailsImpl implements UserDetails {
+public class UserImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
 	private Long id;
@@ -53,7 +53,7 @@ public class UserDetailsImpl implements UserDetails {
 	 * @param password
 	 * @param authorities
 	 */
-	public UserDetailsImpl(Long id, String username, String email, String password,
+	public UserImpl(Long id, String username, String email, String password,
 			boolean accountNonExpired, boolean accountNonLocked, boolean credentialsNonExpired, boolean enabled,
 			Collection<? extends GrantedAuthority> authorities) {
 
@@ -76,12 +76,12 @@ public class UserDetailsImpl implements UserDetails {
 	 * @param user
 	 * @return UserDetailsImpl
 	 */
-	public static UserDetailsImpl build(User user) {
+	public static UserImpl build(User user) {
 		List<GrantedAuthority> authorities = user.getRoles().stream()
 				.map(role -> new SimpleGrantedAuthority(role.getName().name()))
 				.collect(Collectors.toList());
 
-		return new UserDetailsImpl(
+		return new UserImpl(
 				user.getId(),
 				user.getUsername(),
 				user.getEmail(),
@@ -142,7 +142,7 @@ public class UserDetailsImpl implements UserDetails {
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		UserDetailsImpl user = (UserDetailsImpl) o;
+		UserImpl user = (UserImpl) o;
 		return Objects.equals(id, user.id);
 	}
 

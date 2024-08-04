@@ -8,7 +8,7 @@ import java.util.Calendar;
  * @Modifier omargo33
  * @since 2024-07-29
  */
-public class Calculos {
+public class Calc {
 
     /**
      * Método que suma días a una fecha
