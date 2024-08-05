@@ -48,7 +48,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-     @Autowired
+    @Autowired
     PasswordEncoder encoder;
 
     /**
@@ -61,10 +61,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<User>> getSearchUsers(@PathVariable String username, Pageable pageable) {
         List<User> listUser = userService.getAllUsers(username, pageable);
-        
-        if (listUser.size()>0) {            
+
+        if (listUser.size() > 0) {
             return new ResponseEntity<>(listUser, HttpStatus.OK);
-        } 
+        }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -126,11 +126,9 @@ public class UserController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUser(id);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(e.getMessage()));
-        }
+
+        userService.deleteUser(id);
+
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -143,15 +141,12 @@ public class UserController {
     @PostMapping("/")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        try {
-            userService.registerUser(
-                    signUpRequest.getUsername(),
-                    signUpRequest.getEmail(),
-                    convertPassword(signUpRequest.getPassword()),
-                    signUpRequest.getRoles());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
-        }
+
+        userService.registerUser(
+                signUpRequest.getUsername(),
+                signUpRequest.getEmail(),
+                convertPassword(signUpRequest.getPassword()),
+                signUpRequest.getRoles());
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
