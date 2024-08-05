@@ -26,7 +26,6 @@ import com.aplicaciones13.jwt.payload.request.TokenRefreshRequest;
 import com.aplicaciones13.jwt.payload.response.JwtResponse;
 import com.aplicaciones13.jwt.payload.response.MessageResponse;
 import com.aplicaciones13.jwt.payload.response.TokenRefreshResponse;
-import com.aplicaciones13.jwt.services.RoleService;
 import com.aplicaciones13.jwt.services.UserService;
 import com.aplicaciones13.jwt.security.jwt.JwtUtils;
 import com.aplicaciones13.jwt.services.RefreshTokenService;
@@ -38,7 +37,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Clase que controla la autenticación de los usuarios
@@ -46,7 +44,6 @@ import lombok.extern.slf4j.Slf4j;
  * @Modifier omargo33
  * @since 2024-07-29
  */
-@Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @Tag(name = "Auth", description = "Controlador de autenticación")
@@ -58,9 +55,6 @@ public class AuthController {
 
   @Autowired
   UserService userService;
-
-  @Autowired
-  RoleService roleService;
 
   @Autowired
   PasswordEncoder encoder;
@@ -81,7 +75,7 @@ public class AuthController {
   @Operation(operationId = "signIn", description = "Autenticación de usuario", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Login Request", content = @Content(mediaType = "application/json", schema = @Schema(implementation = LoginRequest.class))), responses = {
       @ApiResponse(responseCode = "200", description = "Contenedor de la respuesta de autenticación", content = @Content(mediaType = "application/json", schema = @Schema(implementation = JwtResponse.class))) })
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-    
+
     byte[] decodedBytes = Base64.getDecoder().decode(loginRequest.getPassword());
     loginRequest.setPassword(new String(decodedBytes));
 

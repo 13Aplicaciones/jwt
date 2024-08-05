@@ -6,17 +6,24 @@ import com.aplicaciones13.jwt.payload.request.SignupRequest;
 import com.aplicaciones13.jwt.payload.response.MessageResponse;
 import com.aplicaciones13.jwt.services.UserService;
 import com.aplicaciones13.jwt.services.impl.UserImpl;
-import java.util.Optional;
+import com.aplicaciones13.jwt.tools.Generator;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Base64;
+import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,12 +39,17 @@ import org.springframework.web.bind.annotation.RestController;
  * @Modifier omargo33
  * @since 2024-07-29
  */
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@Tag(name = "Users", description = "Controlador de usuarios")
 @RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+     @Autowired
+    PasswordEncoder encoder;
 
     /**
      * Método que obtiene todos los usuarios de manera pageable
@@ -45,27 +57,26 @@ public class UserController {
      * @param pageable
      * @return
      */
-    @GetMapping("/search/{nameuser}")
+    @GetMapping("/search/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<User>> getSearchUsers(@PathVariable String username, Pageable pageable) {
-        Optional<User> usersOptional = userService.getAllUsers(username, pageable);
-        if (usersOptional.isPresent()) {
-            Page<User> users = (Page<User>) usersOptional.get();
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<List<User>> getSearchUsers(@PathVariable String username, Pageable pageable) {
+        List<User> listUser = userService.getAllUsers(username, pageable);
+        
+        if (listUser.size()>0) {            
+            return new ResponseEntity<>(listUser, HttpStatus.OK);
+        } 
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     /**
      * Método que obtiene un usuario por su name de usuario
      * 
-     * @param id
+     * @param username
      * @return
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> getUserById(@PathVariable String username) {
+    public ResponseEntity<User> getUserByUser(@PathVariable String username) {
         User user = userService.getUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
@@ -79,8 +90,9 @@ public class UserController {
     @PutMapping("/generatePassword/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> generatePassword(@PathVariable Long id) {
-        String newPassword = userService.generatePassword(id);
-        return ResponseEntity.ok(new MessageResponse(newPassword));
+        String password = Generator.generateRandom(Generator.LOWERCASE + Generator.UPPERCASE, 10);
+        userService.generatePassword(id, convertPassword(password));
+        return ResponseEntity.ok(new MessageResponse(password));
     }
 
     /**
@@ -94,7 +106,14 @@ public class UserController {
         UserImpl userImpl = (UserImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username = userImpl.getUsername();
 
-        userService.changePassword(username, changePasswordRequest.getOldPassword(), changePasswordRequest.getNewPassword());
+        byte[] decodedBytes = Base64.getDecoder().decode(changePasswordRequest.getOldPassword());
+        String oldPassword = new String(decodedBytes);
+
+        byte[] decodedBytesNew = Base64.getDecoder().decode(changePasswordRequest.getNewPassword());
+        String newPassword = new String(decodedBytesNew);
+
+        userService.validateChangePassword(oldPassword, newPassword);
+        userService.changePassword(username, convertPassword(newPassword));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
@@ -110,7 +129,7 @@ public class UserController {
         try {
             userService.deleteUser(id);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(e.toString()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(e.getMessage()));
         }
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -128,12 +147,24 @@ public class UserController {
             userService.registerUser(
                     signUpRequest.getUsername(),
                     signUpRequest.getEmail(),
-                    signUpRequest.getPassword(),
-                    signUpRequest.getRole());
+                    convertPassword(signUpRequest.getPassword()),
+                    signUpRequest.getRoles());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(new MessageResponse(e.toString()));
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    /**
+     * Método que convierte el password de base64 a un password encriptado
+     * 
+     * @param passwordBase64
+     * @return
+     */
+    private String convertPassword(String passwordBase64) {
+        byte[] decodedBytes = Base64.getDecoder().decode(passwordBase64);
+        String password = new String(decodedBytes);
+        return encoder.encode(password);
     }
 }

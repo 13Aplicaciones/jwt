@@ -1,5 +1,6 @@
 package com.aplicaciones13.jwt.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
@@ -26,7 +27,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
    * @return
    */
   @Query("SELECT u FROM User u WHERE u.username LIKE %?1% AND u.status = 'A'")
-  Optional<User> findByUsernameContaining(String username, Pageable pageable);
+  List<User> findByUsernameContaining(String username, Pageable pageable);
 
   /**
    * Metodo que busca un usuario por su nombre de usuario y cuyo estado sea activo

@@ -18,6 +18,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+
 import javax.persistence.UniqueConstraint;
 import javax.persistence.JoinColumn;
 
@@ -53,17 +54,14 @@ public class User {
 	@Size(max = 128)
 	private String password;
 
-	@NotBlank
 	@Temporal(TemporalType.DATE)
 	@Column(name = "date_expiration_password")
 	private Date dateExpirationPassword;
-
-	@NotBlank
+	
 	@Temporal(TemporalType.DATE)
 	@Column(name = "date_expiration_credential")
 	private Date dateExpirationCredential;
 
-	@NotBlank
 	@Column(name = "intent_failed")
 	private int intentFailed;
 
