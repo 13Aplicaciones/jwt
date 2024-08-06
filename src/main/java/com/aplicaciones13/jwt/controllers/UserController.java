@@ -91,7 +91,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> generatePassword(@PathVariable Long id) {
         String password = Generator.generateRandom(Generator.LOWERCASE + Generator.UPPERCASE, 10);
-        userService.generatePassword(id, convertPassword(password));
+        userService.generatePassword(id, password);
         return ResponseEntity.ok(new MessageResponse(password));
     }
 
